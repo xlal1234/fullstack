@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { Problem } from "../../models/problem.model";
-import { Subscription } from 'rxjs/Subscription';
 
 
 
@@ -11,8 +10,7 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class ProblemListComponent implements OnInit {
 
-  problems: Problem[] = [];
-  subscriptionProblems: Subscription;
+  problems: Problem[];
   constructor(@Inject("data") private data) { }
 
   ngOnInit() {
@@ -20,7 +18,6 @@ export class ProblemListComponent implements OnInit {
   }
 
   getProblems(): void {
-    this.subscriptionProblems = this.data.getProblems()
-                              .subscribe(problems => this.problems = problems);
+    this.problems = this.data.getProblems();
   }
 }
