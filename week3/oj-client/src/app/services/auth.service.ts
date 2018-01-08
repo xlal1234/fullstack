@@ -5,10 +5,14 @@ import 'rxjs/add/operator/filter';
 import * as auth0 from 'auth0-js';
 import {Http, Response, Headers} from '@angular/http';
 import 'rxjs/add/operator/toPromise';
+//import Auth0Lock from "auth0-lock";
 
 declare var Auth0Lock: any;
 @Injectable()
 export class AuthService {
+    //clientId: 'bxSx0i0sz1QrrhbzS4scDSRHQKi5VlOc';
+    //domain: 'rockxulin.auth0.com';
+    //lock = new Auth0Lock('bxSx0i0sz1QrrhbzS4scDSRHQKi5VlOc', 'rockxulin.auth0.com');
 
     auth0 = new auth0.WebAuth({
     clientID: 'bxSx0i0sz1QrrhbzS4scDSRHQKi5VlOc',
@@ -19,18 +23,32 @@ export class AuthService {
     scope: 'openid'
   });
   constructor(public router: Router, private http: Http) {
-
+    /*this.lock.on("authenticated", (authResult) => {
+      localStorage.setItem('id_token', authResult.idToken);
+    });*/
   }
 
   public login(): void {
     this.auth0.authorize();
   }
+  /*public login(): Promise<Object> {
+    return new Promise((resolve, reject) => {
+      this.lock.show((error: string, profile: Object, id_token: string) => {
+        if(error){
+          reject(error);
+        }else{
+          localStorage.setItem('profile', JSON.stringify(profile));
+          localStorage.setItem('id_token', id_token);
+        }
+      });
+    })
+  }*/
 
   public authenticated(){
     return tokenNotExpired();
   }
 
-  public handleAuthentication(): void {
+  /*public handleAuthentication(): void {
    this.auth0.parseHash((err, authResult) => {
      if (authResult && authResult.accessToken && authResult.idToken) {
        window.location.hash = '';
@@ -41,7 +59,7 @@ export class AuthService {
        console.log(err);
      }
    });
- }
+ }*/
 
  private setSession(authResult): void {
    // Set the time that the access token will expire at
@@ -56,6 +74,7 @@ export class AuthService {
    localStorage.removeItem('access_token');
    localStorage.removeItem('id_token');
    localStorage.removeItem('expires_at');
+   localStorage.removeItem('profile');
    // Go back to the home route
    this.router.navigate(['/']);
  }
