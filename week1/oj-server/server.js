@@ -1,7 +1,13 @@
 var express = require('express')
 var app = express()
 var restRouter = require("./routes/rest")
+var ProblemModel = require("./dao/problemModel");
 const port = '3000'
+const db_str = "mongodb://127.0.0.1/pbmset";
+
+var mongoose = require('mongoose');
+ 
+mongoose.connect(db_str);
 
 app.use("/api/v1", restRouter );
 
