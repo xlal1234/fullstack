@@ -4,6 +4,8 @@ var ProblemSchema = mongoose.Schema({
   name: String,
   desc: String,
   difficulty: String
+},{
+  collection: 'pbmset'
 });
 var problemModel = mongoose.model("ProblemModel", ProblemSchema);
 
