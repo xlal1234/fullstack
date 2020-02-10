@@ -11,8 +11,8 @@ router.get("/problems", function (req, res){
 
 router.get("/problems/:id", function (req, res){
   var id = req.params.id;
-  problemService.getProblem(+id)
-    .then(problem => res.json(problem));
+  problemService.getProblem(id)
+     .then(problem => res.json(problem));
 });
 
 router.post("/problems", jsonParser, function (req, res){

@@ -1,21 +1,22 @@
 var ProblemModel = require("../dao/problemModel");
 var getProblems = function() {
     return new Promise( (resolve, reject) => {
-        resolve( ProblemModel );
-        // ProblemModel.find( {}, function( err, problems ) {
-        //     if ( err ) reject( err );
-        //     else resolve( problems );
-        // });
+        //resolve( ProblemModel );
+        ProblemModel.find( {}, function( err, problems ) {
+            if ( err ) reject( err );
+            else resolve( problems );
+        });
     });
 }
 
 var getProblem = function( id ) {
     return new Promise( (resolve, reject) => {
-        resolve( ProblemModel.find( problem => problem.id === id  ) );
-        // ProblemModel.find( {}, function( err, problems ) {
-        //     if ( err ) reject( err );
-        //     else resolve( problems );
-        // });
+        //resolve( ProblemModel.find( problem => problem.id === id  ) );
+        ProblemModel.findOne( {id: id}, function( err, problem ) {
+            if ( err ) reject( err );
+            else resolve( problem );
+            
+        });
     });
 }
 
