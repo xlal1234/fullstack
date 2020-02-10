@@ -22,25 +22,27 @@ var getProblem = function( id ) {
 
 var addProblem = function (newProblem) {
     return new Promise((resolve, reject) => {
-        if ( ProblemModel.find( problem => problem.name === newProblem.name) ) {
-            reject("Problem name already exists");
+        // if ( ProblemModel.find( problem => problem.name === newProblem.name) ) {
+        //     reject("Problem name already exists");
+        // } else {
+        //     newProblem.id = ProblemModel.length + 1;
+        //     ProblemModel.push(newProblem);
+        //     resolve(newProblem);
+        // }
+      ProblemModel.findOne({ name: newProblem.name }, function (err, problem){
+        if(problem){
+          reject("Problem name already exists");
+        } else if (err) {
+            reject(err);
         } else {
-            newProblem.id = ProblemModel.length + 1;
-            ProblemModel.push(newProblem);
+          ProblemModel.count({}, function (err, num){
+            newProblem.id = num + 1;
+            var mongoProblem = new ProblemModel(newProblem);
+            mongoProblem.save();
             resolve(newProblem);
+          });
         }
-    //   ProblemModel.findOne({ name: newProblem.name }, function (err, problem){
-    //     if(problem){
-    //       reject("Problem name already exists");
-    //     }else {
-    //       ProblemModel.count({}, function (err, num){
-    //         newProblem.id = num + 1;
-    //         var mongoProblem = new ProblemModel(newProblem);
-    //         mongoProblem.save();
-    //         resolve(newProblem);
-    //       });
-    //     }
-    //   });
+      });
     });
 }
 
