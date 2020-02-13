@@ -9,11 +9,14 @@ export class NavbarComponent implements OnInit {
 
   title = "Lin's Code";
 
-  username = "Rock";
-
+  username = "";
+  Json = Object;
   constructor( public auth: AuthService ) { }
 
   ngOnInit() {
+    if ( this.auth.authenticated() ) {
+      this.username = JSON.parse(this.auth.getProfile()).nickname ;
+    }
   }
   
 }
