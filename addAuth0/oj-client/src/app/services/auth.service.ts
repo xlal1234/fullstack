@@ -13,7 +13,6 @@ import Auth0Lock from "auth0-lock";
 })
 export class AuthService {
   lock = new Auth0Lock('see7PgmOPj7S0F5JEXP232vPkf8N3PUN', 'oj-project.auth0.com', {
-    container: 'root',
     auth: {
       redirectUrl: 'https://192.168.153.128:3000',    // If not specified, defaults to the current page 
       responseType: 'token id_token',
@@ -21,8 +20,7 @@ export class AuthService {
         scope: 'openid email'                // Learn about scopes: https://auth0.com/docs/scopes
       }
     }
-  });
-  
+  })
   // Create an observable of Auth0 instance of client
   auth0Client$ = (from(
     createAuth0Client({
@@ -50,15 +48,38 @@ export class AuthService {
   userProfile$ = this.userProfileSubject$.asObservable();
   // Create a local property for login status
   loggedIn: boolean = null;
-
+  
   constructor(private router: Router) {
     // On initial load, check authentication state with authorization server
     // Set up local auth streams if user is already authenticated
     this.localAuthSetup();
     // Handle redirect from Auth0 login
     this.handleAuthCallback();
+    this.lock.on("authenticated", (authResult) => {
+      if (authResult && authResult.accessToken && authResult.idToken) {
+        this.setSession(authResult);
+      }
+      this.lock.getUserInfo(authResult.accessToken, (error , profileResult) => {
+        if (error) {
+          console.log(error);
+        } else {
+          localStorage.setItem('profile', profileResult)
+        }
+      })
+    });
   }
-
+  private setSession(authResult): void {
+    // Set the time that the access token will expire at
+    const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
+    localStorage.setItem('access_token', authResult.accessToken);
+    localStorage.setItem('id_token', authResult.idToken);
+    localStorage.setItem('expires_at', expiresAt);
+  }
+  private removeSession() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('id_token');
+    localStorage.removeItem('expires_at');
+  }
   // When calling, options can be passed if desired
   // https://auth0.github.io/auth0-spa-js/classes/auth0client.html#getuser
   getUser$(options?): Observable<any> {
@@ -84,7 +105,10 @@ export class AuthService {
     );
     checkAuth$.subscribe();
   }
-
+  // public authenticated(){
+  //   return this.jwtHelper.isTokenExpired();
+  // }
+  
   // login(redirectPath: string = '/') {
   //   // A desired redirect path can be passed to login method
   //   // (e.g., from a route guard)
@@ -97,18 +121,24 @@ export class AuthService {
   //     });
   //   });
   // }
-  public login(): Promise<Object> {
-    return new Promise((resolve, reject) => {
-      this.lock.show((error: string, profile: Object, id_token: string) => {
-        if(error){
-          reject(error);
-        }else{
-          localStorage.setItem('profile', JSON.stringify(profile));
-          localStorage.setItem('id_token', id_token);
-        }
-      });
-    })
-  }  
+  public login() {
+    this.lock.show();
+  }
+  
+  
+  // public login() : Promise<Object>  {
+  //   return new Promise((resolve, reject) => {
+  //     this.lock.show((error: string, profile: Object, id_token: string) => {
+  //       if(error){
+  //         //reject(error);
+  //         console.log(error);
+  //       }else{
+  //         localStorage.setItem('profile', JSON.stringify(profile) );
+  //         localStorage.setItem('id_token', id_token);
+  //       }
+  //     });
+  //   })
+  // }  
   private handleAuthCallback() {
     // Call when app reloads after user logs in with Auth0
     const params = window.location.search;
@@ -138,14 +168,17 @@ export class AuthService {
   }
 
   logout() {
-    // Ensure Auth0 client instance exists
-    this.auth0Client$.subscribe((client: Auth0Client) => {
-      // Call method to log out
-      client.logout({
-        client_id: "see7PgmOPj7S0F5JEXP232vPkf8N3PUN",
-        returnTo: `${window.location.origin}`
-      });
-    });
+    this.removeSession();
   }
+  // logout() {
+  //   // Ensure Auth0 client instance exists
+  //   this.auth0Client$.subscribe((client: Auth0Client) => {
+  //     // Call method to log out
+  //     client.logout({
+  //       client_id: "see7PgmOPj7S0F5JEXP232vPkf8N3PUN",
+  //       returnTo: `${window.location.origin}`
+  //     });
+  //   });
+  // }
 
 }

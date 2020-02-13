@@ -32,11 +32,11 @@ import { ProfileComponent } from './components/profile/profile.component';
   providers: [{
     provide: "data",
     useClass: DataService
+  },
+  {
+    provide: "auth",
+    useClass: AuthService
   }
-  // {
-  //   provide: "auth",
-  //   useClass: AuthService
-  // }
   ],
   bootstrap: [AppComponent]
 })
