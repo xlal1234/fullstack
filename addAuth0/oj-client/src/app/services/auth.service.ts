@@ -17,7 +17,7 @@ export class AuthService {
       redirectUrl: 'https://192.168.153.128:3000',    // If not specified, defaults to the current page 
       responseType: 'token id_token',
       params: {
-        scope: 'openid email'                // Learn about scopes: https://auth0.com/docs/scopes
+        scope: 'openid email profile'                // Learn about scopes: https://auth0.com/docs/scopes
       }
     }
   })
@@ -49,7 +49,7 @@ export class AuthService {
   // Create a local property for login status
   loggedIn: boolean = null;
   
-  constructor(private router: Router) {
+  constructor(private router: Router, public jwtHelper: JwtHelperService) {
     // On initial load, check authentication state with authorization server
     // Set up local auth streams if user is already authenticated
     this.localAuthSetup();
@@ -59,11 +59,12 @@ export class AuthService {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
       }
-      this.lock.getUserInfo(authResult.accessToken, (error , profileResult) => {
-        if (error) {
+      this.lock.getProfile(authResult.accessToken, (error , userInfo) => {
+          if (error) {
           console.log(error);
         } else {
-          localStorage.setItem('profile', profileResult)
+          console.log(JSON.stringify(userInfo))
+          localStorage.setItem('profile', JSON.stringify(userInfo))
         }
       })
     });
@@ -79,6 +80,10 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
+    localStorage.removeItem('profile');
+  }
+  public getProfile():  string {
+    return localStorage.getItem('profile');
   }
   // When calling, options can be passed if desired
   // https://auth0.github.io/auth0-spa-js/classes/auth0client.html#getuser
@@ -105,25 +110,28 @@ export class AuthService {
     );
     checkAuth$.subscribe();
   }
-  // public authenticated(){
-  //   return this.jwtHelper.isTokenExpired();
-  // }
-  
-  // login(redirectPath: string = '/') {
-  //   // A desired redirect path can be passed to login method
-  //   // (e.g., from a route guard)
-  //   // Ensure Auth0 client instance exists
-  //   this.auth0Client$.subscribe((client: Auth0Client) => {
-  //     // Call method to log in
-  //     client.loginWithRedirect({
-  //       redirect_uri: `${window.location.origin}`,
-  //       appState: { target: redirectPath }
-  //     });
-  //   });
-  // }
-  public login() {
-    this.lock.show();
+  public authenticated(){
+    return this.jwtHelper.isTokenExpired();
   }
+  
+  login(redirectPath: string = '/') {
+    // A desired redirect path can be passed to login method
+    // (e.g., from a route guard)
+    // Ensure Auth0 client instance exists
+    
+    this.auth0Client$.subscribe((client: Auth0Client) => {
+      // Call method to log in
+      
+      client.loginWithRedirect({
+        redirect_uri: `${window.location.origin}`,
+        appState: { target: redirectPath }
+      });
+    });
+    
+  }
+  // public login() {
+  //   this.lock.show();
+  // }
   
   
   // public login() : Promise<Object>  {
