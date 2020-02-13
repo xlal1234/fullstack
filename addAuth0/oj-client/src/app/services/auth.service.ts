@@ -4,11 +4,25 @@ import Auth0Client from '@auth0/auth0-spa-js/dist/typings/Auth0Client';
 import { from, of, Observable, BehaviorSubject, combineLatest, throwError } from 'rxjs';
 import { tap, catchError, concatMap, shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { JwtHelperService } from "@auth0/angular-jwt";
+import Auth0Lock from "auth0-lock";
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  lock = new Auth0Lock('see7PgmOPj7S0F5JEXP232vPkf8N3PUN', 'oj-project.auth0.com', {
+    container: 'root',
+    auth: {
+      redirectUrl: 'https://192.168.153.128:3000',    // If not specified, defaults to the current page 
+      responseType: 'token id_token',
+      params: {
+        scope: 'openid email'                // Learn about scopes: https://auth0.com/docs/scopes
+      }
+    }
+  });
+  
   // Create an observable of Auth0 instance of client
   auth0Client$ = (from(
     createAuth0Client({
@@ -71,19 +85,30 @@ export class AuthService {
     checkAuth$.subscribe();
   }
 
-  login(redirectPath: string = '/') {
-    // A desired redirect path can be passed to login method
-    // (e.g., from a route guard)
-    // Ensure Auth0 client instance exists
-    this.auth0Client$.subscribe((client: Auth0Client) => {
-      // Call method to log in
-      client.loginWithRedirect({
-        redirect_uri: `${window.location.origin}`,
-        appState: { target: redirectPath }
+  // login(redirectPath: string = '/') {
+  //   // A desired redirect path can be passed to login method
+  //   // (e.g., from a route guard)
+  //   // Ensure Auth0 client instance exists
+  //   this.auth0Client$.subscribe((client: Auth0Client) => {
+  //     // Call method to log in
+  //     client.loginWithRedirect({
+  //       redirect_uri: `${window.location.origin}`,
+  //       appState: { target: redirectPath }
+  //     });
+  //   });
+  // }
+  public login(): Promise<Object> {
+    return new Promise((resolve, reject) => {
+      this.lock.show((error: string, profile: Object, id_token: string) => {
+        if(error){
+          reject(error);
+        }else{
+          localStorage.setItem('profile', JSON.stringify(profile));
+          localStorage.setItem('id_token', id_token);
+        }
       });
-    });
-  }
-
+    })
+  }  
   private handleAuthCallback() {
     // Call when app reloads after user logs in with Auth0
     const params = window.location.search;
