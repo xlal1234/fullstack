@@ -9,8 +9,8 @@ const port = '3000'
 const db_str = "mongodb://127.0.0.1/pbmset";
 
 app.use(express.static(path.join(__dirname, '../public')));
-app.use('/', indexRouter);
 app.use("/api/v1", restRouter ); 
+app.use('/', indexRouter);
 mongoose.connect(db_str);
 //ProblemModel.find().then( (result) => {console.log(result)} );
 
