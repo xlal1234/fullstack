@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { ProblemlistComponent } from './components/problemlist/problemlist.component';
 import { ProblemdetailComponent } from './components/problemdetail/problemdetail.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
   {
@@ -16,6 +17,10 @@ const routes: Routes = [
   {
     path: "problems/:id",
     component: ProblemdetailComponent
+  },
+  {
+    path: "profile",
+    component: ProfileComponent
   },
   {
     path: "**",

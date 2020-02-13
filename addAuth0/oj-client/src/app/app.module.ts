@@ -9,8 +9,10 @@ import { NewproblemComponent } from './components/newproblem/newproblem.componen
 import { HttpClientModule } from "@angular/common/http";
 
 import { DataService } from "./services/data.service";
+import { AuthService } from "./services/auth.service";
 import { ProblemlistComponent } from './components/problemlist/problemlist.component';
 import { ProblemdetailComponent } from './components/problemdetail/problemdetail.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,8 @@ import { ProblemdetailComponent } from './components/problemdetail/problemdetail
     NavbarComponent,
     NewproblemComponent,
     ProblemlistComponent,
-    ProblemdetailComponent
+    ProblemdetailComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
@@ -29,7 +32,12 @@ import { ProblemdetailComponent } from './components/problemdetail/problemdetail
   providers: [{
     provide: "data",
     useClass: DataService
-  }],
+  }
+  // {
+  //   provide: "auth",
+  //   useClass: AuthService
+  // }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
